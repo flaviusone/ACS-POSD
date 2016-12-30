@@ -36,7 +36,7 @@ const LoginForm = Form.create()(React.createClass({
     return (
       <Form onSubmit={this.handleSubmit} className="login-form">
         <FormItem>
-          {getFieldDecorator('userName', {
+          {getFieldDecorator('email', {
             rules: [{
               type: 'email', message: 'The input is not valid E-mail!',
             }, {
@@ -48,7 +48,8 @@ const LoginForm = Form.create()(React.createClass({
         </FormItem>
         <FormItem>
           {getFieldDecorator('password', {
-            rules: [{ required: true, message: 'Please input your Password!' }],
+            rules: [{ required: true, message: 'Please input your Password!' },
+                    {min: 6, message: 'Password must be at least 6 characters'}],
           })(
             <Input addonBefore={<Icon type="lock" />} type="password" placeholder="Password" />
           )}
