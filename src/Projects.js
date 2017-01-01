@@ -3,6 +3,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import AddProjectForm from './AddProjectForm.js';
+import { Card } from 'antd';
 import * as firebase from "firebase";
 
 import './Projects.css';
@@ -23,6 +24,7 @@ class Projects extends Component {
 
   render() {
     return <div className='projects'>
+      {this._renderProjectCards()}
       {this._renderAddProjectButton()}
       {this.state.addProjectModalOpen ? this._renderAddProjectModal() : null}
     </div>;
@@ -70,6 +72,25 @@ class Projects extends Component {
       name: values.name,
       buget: values.budget
     });
+  }
+
+  _renderProjectCards() {
+    const {projects} = this.props;
+
+    return <div className='project-cards-container'>
+      {projects ? projects.map((project, id) => {
+                    return this._renderProjectCard(project, id);
+                  })
+                : null}
+    </div>;
+  }
+
+  _renderProjectCard(projectData, id) {
+    return <div key={id} className='project-card'>
+      <Card title={projectData.name}>
+        <p>Budget ramas: {projectData.buget}</p>
+      </Card>
+    </div>
   }
 
   _renderAddProjectButton() {

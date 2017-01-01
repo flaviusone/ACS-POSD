@@ -1,6 +1,16 @@
 .add-item-button {
   display: inline-block;
-  position: absolute;
+  position: fixed;
   right: 50px;
   bottom: 50px;
+}
+
+.project-cards-container{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.project-card {
+  margin: 20px;
+  width: 300px;
 }

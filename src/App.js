@@ -5,6 +5,10 @@ import AppBar from 'material-ui/AppBar';
 import LoginForm from './LoginForm.js';
 import Projects from './Projects.js';
 import * as firebase from "firebase";
+import { Tabs } from 'antd';
+import _ from 'lodash';
+
+const TabPane = Tabs.TabPane;
 
 import './App.css';
 
@@ -34,6 +38,8 @@ class App extends Component {
   }
 
   componentDidMount() {
+    const postsRef = firebase.database().ref('posts/');
+
     firebase.auth().onAuthStateChanged(firebaseUser => {
       let userEmail, userId, userName;
 
@@ -47,6 +53,19 @@ class App extends Component {
 
             this.setState({loggedUserName: userName})
           });
+
+        postsRef.once('value', (snapshot) => {
+          // Filter only owner's projects
+          if(this.state.loggedIn) {
+            const loggedUserProjects = _.filter(snapshot.val(), (project) => {
+              return _.isEqual(project.ownerId, this.state.loggedUserId);
+            })
+            debugger;
+            this.setState({
+              loggedUserProjects
+            })
+          }
+        });
       }
       this.setState({
         loggedIn: !!firebaseUser,
@@ -55,6 +74,19 @@ class App extends Component {
         loggedUserName: userName || null
       })
     })
+
+    postsRef.on('value', (snapshot) => {
+      // Filter only owner's projects
+      if(this.state.loggedIn) {
+        const loggedUserProjects = _.filter(snapshot.val(), (project) => {
+          return _.isEqual(project.ownerId, this.state.loggedUserId);
+        })
+
+        this.setState({
+          loggedUserProjects
+        })
+      }
+    });
   }
 
   render() {
@@ -77,7 +109,7 @@ class App extends Component {
         </MuiThemeProvider>
 
         {!this.state.loggedIn ? this._renderLoginForm()
-                              : this._renderProjects()}
+                              : this._renderTabs()}
       </div>
     );
   }
@@ -128,9 +160,17 @@ class App extends Component {
     return <LoginForm className='login-form' onFormSubmit={this.onFormSubmit}/>;
   }
 
+  _renderTabs() {
+    return <Tabs defaultActiveKey="1">
+      <TabPane tab="Proiecte" key="1">{this._renderProjects()}</TabPane>
+      <TabPane tab="Ordine cerute" key="2">Content of Tab Pane 2</TabPane>
+    </Tabs>
+  }
+
   _renderProjects() {
-    const {loggedUserId, loggedUserName} = this.state;
-    return <Projects userId={loggedUserId} userName={loggedUserName}/>;
+    const {loggedUserId, loggedUserName, loggedUserProjects} = this.state;
+    return <Projects userId={loggedUserId} userName={loggedUserName}
+                     projects={loggedUserProjects}/>;
   }
 }
 
