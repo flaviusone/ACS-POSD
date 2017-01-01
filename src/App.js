@@ -79,11 +79,20 @@ class App extends Component {
   }
 
   _registerNewUser(values) {
-    const {email, password} = values;
+    const {email, password, name} = values;
 
-    firebase.auth().createUserWithEmailAndPassword(email, password).catch(
-      function(error) {
-        alert(error.message);
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+      .then((firebaseUser) => {
+        const {email, uid} = firebaseUser;
+
+        firebase.database().ref('users/' + uid).set({
+          username: name,
+          email: email,
+        });
+      })
+      .catch(
+        function(error) {
+          alert(error.message);
       });
   }
 
@@ -96,9 +105,10 @@ class App extends Component {
   _loginUser(values) {
     const {email, password} = values;
 
-    firebase.auth().signInWithEmailAndPassword(email, password).catch(
-      function(error) {
-        alert(error.message);
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .catch(
+        function(error) {
+          alert(error.message);
       });
   }
 

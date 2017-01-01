@@ -35,6 +35,16 @@ const LoginForm = Form.create()(React.createClass({
     const { getFieldDecorator } = this.props.form;
     return (
       <Form onSubmit={this.handleSubmit} className="login-form">
+        {this.state.register ? <FormItem>
+          {getFieldDecorator('name', {
+            rules: [{
+              required: true, message: 'Please input your name!'
+            }],
+          })(
+            <Input addonBefore={<Icon type="user" />} placeholder="Name" />
+          )}
+        </FormItem>
+                            : null}
         <FormItem>
           {getFieldDecorator('email', {
             rules: [{
@@ -43,7 +53,7 @@ const LoginForm = Form.create()(React.createClass({
               required: true, message: 'Please input your email!'
             }],
           })(
-            <Input addonBefore={<Icon type="user" />} placeholder="Email" />
+            <Input addonBefore={<Icon type="mail" />} placeholder="Email" />
           )}
         </FormItem>
         <FormItem>
