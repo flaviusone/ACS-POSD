@@ -3,6 +3,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import AddProjectForm from './AddProjectForm.js';
+import * as firebase from "firebase";
 
 import './Projects.css';
 
@@ -51,13 +52,24 @@ class Projects extends Component {
           return;
         }
 
-        console.log('Received values of form: ', values);
+        this.addProjectToDB(values);
+
         form.resetFields();
         this.setState({ modalSubmitPending: false, addProjectModalOpen: false});
       });
     }, 1000);
+  }
 
-
+  addProjectToDB(values) {
+    // Get a key for a new Project.
+    var newProjectKey = firebase.database().ref().child('posts').push().key;
+    // debugger;
+    firebase.database().ref('posts/' + newProjectKey).set({
+      ownerName: this.props.userName,
+      ownerId: this.props.userId,
+      name: values.name,
+      buget: values.budget
+    });
   }
 
   _renderAddProjectButton() {

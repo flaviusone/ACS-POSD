@@ -27,20 +27,32 @@ class App extends Component {
 
     this.state = {
       loggedIn: false,
-      loggedUser: null
+      loggedUser: null,
+      loggedUserId: null,
+      loggedUserName: null
     }
   }
 
   componentDidMount() {
     firebase.auth().onAuthStateChanged(firebaseUser => {
-      let userEmail;
+      let userEmail, userId, userName;
 
       if(firebaseUser) {
         userEmail = firebaseUser.email;
+        userId = firebaseUser.uid;
+
+        firebase.database().ref('/users/' + userId).once('value').then(
+          (snapshot) => {
+            userName = snapshot.val().username;
+
+            this.setState({loggedUserName: userName})
+          });
       }
       this.setState({
         loggedIn: !!firebaseUser,
-        loggedUser: userEmail || null
+        loggedUser: userEmail || null,
+        loggedUserId: userId || null,
+        loggedUserName: userName || null
       })
     })
   }
@@ -117,7 +129,8 @@ class App extends Component {
   }
 
   _renderProjects() {
-    return <Projects />;
+    const {loggedUserId, loggedUserName} = this.state;
+    return <Projects userId={loggedUserId} userName={loggedUserName}/>;
   }
 }
 

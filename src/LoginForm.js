@@ -25,7 +25,6 @@ const LoginForm = Form.create()(React.createClass({
   },
 
   handleToggle(e) {
-    console.log('Toggle')
     this.setState({
       register: !this.state.register
     })
