@@ -1,0 +1,6 @@
+.add-item-button {
+  display: inline-block;
+  position: absolute;
+  right: 50px;
+  bottom: 50px;
+}

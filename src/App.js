@@ -107,7 +107,7 @@ class App extends Component {
   }
 
   _renderProjects() {
-    return null;
+    return <Projects />;
   }
 }
 
