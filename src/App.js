@@ -3,6 +3,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import FlatButton from 'material-ui/FlatButton';
 import AppBar from 'material-ui/AppBar';
 import LoginForm from './LoginForm.js';
+import Projects from './Projects.js';
 import * as firebase from "firebase";
 
 import './App.css';
@@ -46,13 +47,14 @@ class App extends Component {
 
   render() {
     const {loggedIn, loggedUser} = this.state;
-    debugger;
+
     return (
       <div className="app">
         <MuiThemeProvider>
           <AppBar
             title="Decont Proiecte Cercetare"
-            iconElementLeft={<div>{loggedUser}</div>}
+            iconElementLeft={loggedIn ? <div>User: {loggedUser}</div>
+                                      : <div></div>}
             iconStyleLeft={{color: "white", fontSize: 16, position: "absolute",
                             top: 10, display: "inline-block"}}
             iconElementRight={
@@ -61,6 +63,7 @@ class App extends Component {
                        : null}
             iconStyleRight={{position: "absolute", right: 25}} />
         </MuiThemeProvider>
+
         {!this.state.loggedIn ? this._renderLoginForm()
                               : this._renderProjects()}
       </div>
