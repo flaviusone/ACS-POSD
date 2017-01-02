@@ -4,6 +4,7 @@ import FlatButton from 'material-ui/FlatButton';
 import AppBar from 'material-ui/AppBar';
 import LoginForm from './LoginForm.js';
 import Projects from './Projects.js';
+import Orders from './Orders.js';
 import * as firebase from "firebase";
 import { Tabs } from 'antd';
 import _ from 'lodash';
@@ -33,12 +34,13 @@ class App extends Component {
       loggedIn: false,
       loggedUser: null,
       loggedUserId: null,
-      loggedUserName: null
+      loggedUserName: null,
+      projects: []
     }
   }
 
   componentDidMount() {
-    const postsRef = firebase.database().ref('posts/');
+    const projectsRef = firebase.database().ref('projects/');
 
     firebase.auth().onAuthStateChanged(firebaseUser => {
       let userEmail, userId, userName;
@@ -51,41 +53,34 @@ class App extends Component {
           (snapshot) => {
             userName = snapshot.val().username;
 
-            this.setState({loggedUserName: userName})
+            this.setState({loggedUserName: userName});
           });
 
-        postsRef.once('value', (snapshot) => {
-          // Filter only owner's projects
-          if(this.state.loggedIn) {
-            const loggedUserProjects = _.filter(snapshot.val(), (project) => {
-              return _.isEqual(project.ownerId, this.state.loggedUserId);
-            })
-            debugger;
-            this.setState({
-              loggedUserProjects
-            })
-          }
+        projectsRef.once('value', (snapshot) => {
+          this.setState({projects: snapshot.val()});
         });
-      }
-      this.setState({
-        loggedIn: !!firebaseUser,
-        loggedUser: userEmail || null,
-        loggedUserId: userId || null,
-        loggedUserName: userName || null
-      })
-    })
-
-    postsRef.on('value', (snapshot) => {
-      // Filter only owner's projects
-      if(this.state.loggedIn) {
-        const loggedUserProjects = _.filter(snapshot.val(), (project) => {
-          return _.isEqual(project.ownerId, this.state.loggedUserId);
-        })
 
         this.setState({
-          loggedUserProjects
+          loggedIn: true,
+          loggedUser: userEmail,
+          loggedUserId: userId
+        })
+      } else {
+        // User logged out
+        this.setState({
+          loggedIn: false,
+          loggedUser: null,
+          loggedUserId: null,
+          loggedUserName: null,
+          projects: []
         })
       }
+    })
+
+    projectsRef.on('value', (snapshot) => {
+      this.setState({
+        projects: snapshot.val()
+      });
     });
   }
 
@@ -163,12 +158,27 @@ class App extends Component {
   _renderTabs() {
     return <Tabs defaultActiveKey="1">
       <TabPane tab="Proiecte" key="1">{this._renderProjects()}</TabPane>
-      <TabPane tab="Ordine cerute" key="2">Content of Tab Pane 2</TabPane>
+      <TabPane tab="Ordine cerute" key="2">{this._renderOrders()}</TabPane>
     </Tabs>
   }
 
+  _renderOrders() {
+    const {loggedUserId, loggedUserName} = this.state;
+
+    return <Orders
+              userId={loggedUserId}
+              userName={loggedUserName}
+              projects={this.state.projects}/>;
+  }
+
   _renderProjects() {
-    const {loggedUserId, loggedUserName, loggedUserProjects} = this.state;
+    const loggedUserProjects = _.filter(this.state.projects,
+      (project) => {
+        return _.isEqual(project.ownerId, this.state.loggedUserId);
+      });
+
+    const {loggedUserId, loggedUserName} = this.state;
+
     return <Projects userId={loggedUserId} userName={loggedUserName}
                      projects={loggedUserProjects}/>;
   }

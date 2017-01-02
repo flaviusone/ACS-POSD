@@ -12,7 +12,7 @@ class Projects extends Component {
   constructor(props) {
     super(props);
 
-    this.onCreateProjectClick = this.onCreateProjectClick.bind(this);
+    this.onCreateProject = this.onCreateProject.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.handleCreate = this.handleCreate.bind(this);
 
@@ -30,7 +30,7 @@ class Projects extends Component {
     </div>;
   }
 
-  onCreateProjectClick() {
+  onCreateProject() {
     this.setState({
       addProjectModalOpen: true
     });
@@ -64,9 +64,9 @@ class Projects extends Component {
 
   addProjectToDB(values) {
     // Get a key for a new Project.
-    var newProjectKey = firebase.database().ref().child('posts').push().key;
-    // debugger;
-    firebase.database().ref('posts/' + newProjectKey).set({
+    var newProjectKey = firebase.database().ref().child('projects').push().key;
+
+    firebase.database().ref('projects/' + newProjectKey).set({
       ownerName: this.props.userName,
       ownerId: this.props.userId,
       name: values.name,
@@ -96,7 +96,7 @@ class Projects extends Component {
   _renderAddProjectButton() {
     return <div className='add-item-button'>
       <MuiThemeProvider>
-        <FloatingActionButton onClick={this.onCreateProjectClick}>
+        <FloatingActionButton onClick={this.onCreateProject}>
           <ContentAdd />
         </FloatingActionButton>
       </MuiThemeProvider>
