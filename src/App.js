@@ -35,28 +35,33 @@ class App extends Component {
       loggedUser: null,
       loggedUserId: null,
       loggedUserName: null,
-      projects: []
+      projects: [],
+      userRequests: []
     }
   }
 
   componentDidMount() {
-    const projectsRef = firebase.database().ref('projects/');
-
     firebase.auth().onAuthStateChanged(firebaseUser => {
-      let userEmail, userId, userName;
+      let userEmail, userId, userName, requests;
 
       if(firebaseUser) {
+        const projectsRef = firebase.database().ref('projects/');
+
         userEmail = firebaseUser.email;
         userId = firebaseUser.uid;
 
-        firebase.database().ref('/users/' + userId).once('value').then(
+        firebase.database().ref('/users/' + userId).on('value',
           (snapshot) => {
             userName = snapshot.val().username;
+            requests = snapshot.val().requests;
 
-            this.setState({loggedUserName: userName});
+            this.setState({
+              loggedUserName: userName,
+              userRequests: requests
+            });
           });
 
-        projectsRef.once('value', (snapshot) => {
+        projectsRef.on('value', (snapshot) => {
           this.setState({projects: snapshot.val()});
         });
 
@@ -66,22 +71,21 @@ class App extends Component {
           loggedUserId: userId
         })
       } else {
+        // Detach listeners
+        firebase.database().ref('/users/' + this.state.loggedUserId).off();
+        firebase.database().ref('projects/').off();
+
         // User logged out
         this.setState({
           loggedIn: false,
           loggedUser: null,
           loggedUserId: null,
           loggedUserName: null,
-          projects: []
+          projects: [],
+          userRequests: []
         })
       }
     })
-
-    projectsRef.on('value', (snapshot) => {
-      this.setState({
-        projects: snapshot.val()
-      });
-    });
   }
 
   render() {
@@ -168,7 +172,8 @@ class App extends Component {
     return <Orders
               userId={loggedUserId}
               userName={loggedUserName}
-              projects={this.state.projects}/>;
+              projects={this.state.projects}
+              orders={this.state.userRequests} />;
   }
 
   _renderProjects() {
@@ -179,8 +184,10 @@ class App extends Component {
 
     const {loggedUserId, loggedUserName} = this.state;
 
-    return <Projects userId={loggedUserId} userName={loggedUserName}
-                     projects={loggedUserProjects}/>;
+    return <Projects
+              userId={loggedUserId}
+              userName={loggedUserName}
+              projects={loggedUserProjects} />;
   }
 }
 

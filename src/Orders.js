@@ -3,7 +3,9 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import AddOrderForm from './AddOrderForm.js';
+import { Card } from 'antd';
 import * as firebase from "firebase";
+import _ from 'lodash';
 
 class Orders extends Component {
   constructor(props) {
@@ -69,6 +71,7 @@ class Orders extends Component {
       .ref('/users/' + userId + '/requests/' + newUserOrderKey).set({
         projectId: projectId,
         projectName: this.props.projects[projectId].name,
+        status: 1, // Pending
         requestedBudget: budget,
     });
   }
@@ -76,10 +79,39 @@ class Orders extends Component {
 
   render() {
     return <div className='orders'>
+      {this._renderOrdersCards()}
       {this._renderAddOrderButton()}
       {this.state.addOrderModalOpen ? this._renderAddOrderModal() : null}
     </div>;
   }
+
+  _renderOrdersCards() {
+    const {orders} = this.props;
+
+    return <div className='project-cards-container'>
+      {orders ? _.map(orders, (order, id) => {
+                    return this._renderOrderCard(order, id);
+                  })
+                : null}
+    </div>;
+  }
+
+  _renderOrderCard(order, id) {
+    const statusMapping = {
+      0: 'ANULATA',
+      1: 'IN ASTEPTARE',
+      2: 'ACCEPTATA'
+    };
+
+    return <div key={id} className='project-card'>
+      <Card title={"Ordin nr. " + id}>
+        <p>Proiect: {order.projectName}</p>
+        <p>Buget cerut: {order.requestedBudget}</p>
+        <p>Status: {statusMapping[order.status]}</p>
+      </Card>
+    </div>
+  }
+
 
   _renderAddOrderModal() {
     return <AddOrderForm
