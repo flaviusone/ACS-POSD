@@ -156,7 +156,7 @@ class ProjectRequests extends Component {
 
     const params = {
       reply_to: userEmail,
-      from_name: this.props.projectName,
+      from_name: this.props.projectOwnerName,
       to_name: userName,
       message_html: 'O cerere a fost acceptata'
     }
@@ -182,7 +182,7 @@ class ProjectRequests extends Component {
 
     const params = {
       reply_to: userEmail,
-      from_name: this.props.projectName,
+      from_name: this.props.projectOwnerName,
       to_name: userName,
       message_html: values.message
     }
