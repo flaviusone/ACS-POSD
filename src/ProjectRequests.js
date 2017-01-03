@@ -87,7 +87,7 @@ class ProjectRequests extends Component {
       });
 
     // Notify user
-    this.sendAcceptEmail();
+    this.sendAcceptEmail(requesterId);
   }
 
   onRequestDecline(id) {
@@ -143,15 +143,15 @@ class ProjectRequests extends Component {
     })
   }
 
-  sendAcceptEmail() {
+  sendAcceptEmail(requesterId) {
     const service_id = "yahoo";
     const template_id = "mail_anulare";
     let userName, userEmail;
 
-    firebase.database().ref('/users/' + this.state.requesterId).once('value',
+    firebase.database().ref('/users/' + requesterId).once('value',
       (snapshot) => {
         userName = snapshot.val().username;
-        userEmail = snapshot.val().username;
+        userEmail = snapshot.val().email;
       });
 
     const params = {
@@ -177,7 +177,7 @@ class ProjectRequests extends Component {
     firebase.database().ref('/users/' + this.state.requesterId).once('value',
       (snapshot) => {
         userName = snapshot.val().username;
-        userEmail = snapshot.val().username;
+        userEmail = snapshot.val().email;
       });
 
     const params = {
