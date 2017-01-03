@@ -3,6 +3,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import BackButton from 'material-ui/svg-icons/navigation/arrow-back';
 import { Tabs, Card, Button } from 'antd';
+import DeclineMessageForm from './DeclineMessageForm.js';
 import _ from 'lodash';
 import * as firebase from "firebase";
 
@@ -15,6 +16,14 @@ class ProjectRequests extends Component {
     super(props);
     this.onRequestAccept = this.onRequestAccept.bind(this);
     this.onRequestDecline = this.onRequestDecline.bind(this);
+    this.handleCreate = this.handleCreate.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
+    this.sendDeclineEmail = this.sendDeclineEmail.bind(this);
+    this._renderDeclineModal = this._renderDeclineModal.bind(this);
+
+    this.state = {
+      showDeclineModal: false
+    };
   }
   render() {
     const projectName = this.props.projectData.name;
@@ -25,6 +34,7 @@ class ProjectRequests extends Component {
           {this._renderRequestCards()}
         </TabPane>
       </Tabs>
+      {this.state.showDeclineModal ? this._renderDeclineModal() : null}
       {this._renderBackbutton()}
     </div>;
   }
@@ -77,6 +87,7 @@ class ProjectRequests extends Component {
       });
 
     // Notify user
+    this.sendAcceptEmail();
   }
 
   onRequestDecline(id) {
@@ -97,6 +108,95 @@ class ProjectRequests extends Component {
         status: 0
       });
     // Notify user
+    this.setState({
+      showDeclineModal: true,
+      requesterId
+    })
+  }
+
+  _renderDeclineModal() {
+    return <DeclineMessageForm
+      ref={(form) => { this.form = form; }}
+      onCancel={this.handleCancel}
+      onCreate={this.handleCreate}
+    />
+  }
+
+  handleCreate() {
+    const form = this.form;
+
+    form.validateFields((err, values) => {
+      if (err) {
+        return;
+      }
+
+      this.sendDeclineEmail(values);
+
+      form.resetFields();
+      this.setState({ showDeclineModal: false});
+    });
+  }
+
+  handleCancel() {
+    this.setState({
+      showDeclineModal: false
+    })
+  }
+
+  sendAcceptEmail() {
+    const service_id = "yahoo";
+    const template_id = "mail_anulare";
+    let userName, userEmail;
+
+    firebase.database().ref('/users/' + this.state.requesterId).once('value',
+      (snapshot) => {
+        userName = snapshot.val().username;
+        userEmail = snapshot.val().username;
+      });
+
+    const params = {
+      reply_to: userEmail,
+      from_name: this.props.projectName,
+      to_name: userName,
+      message_html: 'O cerere a fost acceptata'
+    }
+
+    window.emailjs.send(service_id,template_id,params)
+    .then(function(){
+       alert("Sent!");
+     }, function(err) {
+       alert("Send email failed!\r\n Response:\n " + JSON.stringify(err));
+    });
+  }
+
+  sendDeclineEmail(values) {
+    const service_id = "yahoo";
+    const template_id = "mail_anulare";
+    let userName, userEmail;
+
+    firebase.database().ref('/users/' + this.state.requesterId).once('value',
+      (snapshot) => {
+        userName = snapshot.val().username;
+        userEmail = snapshot.val().username;
+      });
+
+    const params = {
+      reply_to: userEmail,
+      from_name: this.props.projectName,
+      to_name: userName,
+      message_html: values.message
+    }
+
+    window.emailjs.send(service_id,template_id,params)
+    .then(function(){
+       alert("Sent!");
+     }, function(err) {
+       alert("Send email failed!\r\n Response:\n " + JSON.stringify(err));
+    });
+
+    this.setState({
+      showDeclineModal: false
+    })
   }
 
   _renderRequestCard(request, id) {

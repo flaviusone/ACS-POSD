@@ -138,6 +138,7 @@ class App extends Component {
   _renderProjectRequests() {
     return <ProjectRequests
       projectId={this.state.activeProject}
+      projectOwnerName={this.state.loggedUserName}
       projectData={this.state.projects[this.state.activeProject]}
       onBackclick={this.onRequestBackClick}/>
   }
