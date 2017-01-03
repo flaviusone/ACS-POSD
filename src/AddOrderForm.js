@@ -1,5 +1,5 @@
 import React from 'react';
-import {Modal, Form, Select, InputNumber, Button } from 'antd';
+import {Modal, Form, Select, InputNumber, Input, Button } from 'antd';
 import _ from 'lodash';
 
 const FormItem = Form.Item;
@@ -51,6 +51,13 @@ const AddOrderForm = Form.create()(React.createClass({
               >
                 {this._renderOptions()}
               </Select>
+            )}
+          </FormItem>
+          <FormItem label="Tara deplasare">
+            {getFieldDecorator('country', {
+              rules: [{ required: true, message: 'Introduceti tara deplasarii!' }],
+            })(
+              <Input />
             )}
           </FormItem>
           <FormItem label="Buget cerut">

@@ -4,6 +4,7 @@ import FlatButton from 'material-ui/FlatButton';
 import AppBar from 'material-ui/AppBar';
 import LoginForm from './LoginForm.js';
 import Projects from './Projects.js';
+import ProjectRequests from './ProjectRequests.js';
 import Orders from './Orders.js';
 import * as firebase from "firebase";
 import { Tabs } from 'antd';
@@ -29,6 +30,9 @@ class App extends Component {
 
     this.onFormSubmit = this.onFormSubmit.bind(this);
     this._logoutCurrentUser = this._logoutCurrentUser.bind(this);
+    this._renderProjects = this._renderProjects.bind(this);
+    this.handleCardClick = this.handleCardClick.bind(this);
+    this.onRequestBackClick = this.onRequestBackClick.bind(this);
 
     this.state = {
       loggedIn: false,
@@ -36,7 +40,8 @@ class App extends Component {
       loggedUserId: null,
       loggedUserName: null,
       projects: [],
-      userRequests: []
+      userRequests: [],
+      displayProjectRequests: false
     }
   }
 
@@ -108,9 +113,18 @@ class App extends Component {
         </MuiThemeProvider>
 
         {!this.state.loggedIn ? this._renderLoginForm()
-                              : this._renderTabs()}
+                              : this.state.displayProjectRequests
+                                    ? this._renderProjectRequests()
+                                    : this._renderTabs()}
       </div>
     );
+  }
+
+  handleCardClick(id) {
+    this.setState({
+      displayProjectRequests: true,
+      activeProject: id
+    })
   }
 
   onFormSubmit(values) {
@@ -119,6 +133,20 @@ class App extends Component {
     } else {
       this._loginUser(values);
     }
+  }
+
+  _renderProjectRequests() {
+    return <ProjectRequests
+      projectId={this.state.activeProject}
+      projectData={this.state.projects[this.state.activeProject]}
+      onBackclick={this.onRequestBackClick}/>
+  }
+
+  onRequestBackClick() {
+    this.setState({
+      displayProjectRequests: false,
+      activeProject: null
+    })
   }
 
   _registerNewUser(values) {
@@ -177,9 +205,9 @@ class App extends Component {
   }
 
   _renderProjects() {
-    const loggedUserProjects = _.filter(this.state.projects,
-      (project) => {
-        return _.isEqual(project.ownerId, this.state.loggedUserId);
+    const loggedUserProjects = _.pickBy(this.state.projects,
+      (value, key) => {
+        return _.isEqual(value.ownerId, this.state.loggedUserId);
       });
 
     const {loggedUserId, loggedUserName} = this.state;
@@ -187,7 +215,8 @@ class App extends Component {
     return <Projects
               userId={loggedUserId}
               userName={loggedUserName}
-              projects={loggedUserProjects} />;
+              projects={loggedUserProjects}
+              handleCardClick={this.handleCardClick} />;
   }
 }
 

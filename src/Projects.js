@@ -5,6 +5,7 @@ import ContentAdd from 'material-ui/svg-icons/content/add';
 import AddProjectForm from './AddProjectForm.js';
 import { Card } from 'antd';
 import * as firebase from "firebase";
+import _ from 'lodash';
 
 import './Projects.css';
 
@@ -70,7 +71,8 @@ class Projects extends Component {
       ownerName: this.props.userName,
       ownerId: this.props.userId,
       name: values.name,
-      buget: values.budget
+      buget: values.budget,
+      budgetLimit: 20 / 100 * values.budget
     });
   }
 
@@ -78,17 +80,22 @@ class Projects extends Component {
     const {projects} = this.props;
 
     return <div className='project-cards-container'>
-      {projects ? projects.map((project, id) => {
+      {projects ? _.map(projects, (project, id) => {
                     return this._renderProjectCard(project, id);
                   })
                 : null}
     </div>;
   }
 
+  handleCardClick(id, event) {
+    event.preventDefault();
+    this.props.handleCardClick(id);
+  }
+
   _renderProjectCard(projectData, id) {
-    return <div key={id} className='project-card'>
+    return <div key={id} className='project-card' onClick={this.handleCardClick.bind(this, id)}>
       <Card title={projectData.name}>
-        <p>Budget ramas: {projectData.buget}</p>
+        <h3>Budget ramas: {projectData.buget}</h3>
       </Card>
     </div>
   }

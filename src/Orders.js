@@ -7,6 +7,8 @@ import { Card } from 'antd';
 import * as firebase from "firebase";
 import _ from 'lodash';
 
+import './Orders.css';
+
 class Orders extends Component {
   constructor(props) {
     super(props);
@@ -49,7 +51,7 @@ class Orders extends Component {
 
   addOrderToDB(values) {
     const {userId} = this.props;
-    const {projectId, budget} = values;
+    const {projectId, budget, country} = values;
 
     // Get a key for a user order.
     const newUserOrderKey = firebase.database().ref()
@@ -62,14 +64,17 @@ class Orders extends Component {
     firebase.database()
       .ref('/projects/' + projectId + '/requests/' + newProjectOrderKey).set({
         requestedBudget: budget,
+        country,
         status: 1, // Pending
         requesterName: this.props.userName,
-        requesterId: userId
+        requesterId: userId,
+        requestKey: newUserOrderKey
     });
 
     firebase.database()
       .ref('/users/' + userId + '/requests/' + newUserOrderKey).set({
         projectId: projectId,
+        country,
         projectName: this.props.projects[projectId].name,
         status: 1, // Pending
         requestedBudget: budget,
@@ -88,7 +93,7 @@ class Orders extends Component {
   _renderOrdersCards() {
     const {orders} = this.props;
 
-    return <div className='project-cards-container'>
+    return <div className='orders-cards-container'>
       {orders ? _.map(orders, (order, id) => {
                     return this._renderOrderCard(order, id);
                   })
@@ -103,11 +108,12 @@ class Orders extends Component {
       2: 'ACCEPTATA'
     };
 
-    return <div key={id} className='project-card'>
+    return <div key={id} className='order-card'>
       <Card title={"Ordin nr. " + id}>
-        <p>Proiect: {order.projectName}</p>
-        <p>Buget cerut: {order.requestedBudget}</p>
-        <p>Status: {statusMapping[order.status]}</p>
+        <h3>Proiect: {order.projectName}</h3>
+        <h3>Tara deplasare: {order.country}</h3>
+        <h3>Buget cerut: {order.requestedBudget}</h3>
+        <h3>Status: {statusMapping[order.status]}</h3>
       </Card>
     </div>
   }

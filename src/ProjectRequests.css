@@ -1,17 +1,16 @@
-.add-item-button {
+.back-button {
   display: inline-block;
   position: fixed;
-  right: 50px;
+  left: 50px;
   bottom: 50px;
 }
 
-.project-cards-container{
+.requests-cards-container {
   display: flex;
   flex-wrap: wrap;
 }
 
-.project-card {
+.request-card {
   margin: 20px;
   width: 300px;
-  cursor: pointer;
 }
